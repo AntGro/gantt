@@ -177,7 +177,6 @@ timeline = get_timeline(
     )
 print(timeline)
 print()
-print()
 
 total_width = len(timeline.split("\n")[0])
 legends = []
@@ -196,10 +195,6 @@ if len(s) > 0:
     legends.append((s[:-2], length - 3))
 
 for legend in legends:
-    if legend[1] < total_width:
-        center_gap = (total_width - legend[1]) // 2
-    else:
-        center_gap = 0
-    center_gap = (total_width - legend[1]) // 2
-    print(" " * center_gap + legend[0] + " " * center_gap)
     print()
+    center_gap = max(0, (total_width - legend[1]) // 2)
+    print(" " * center_gap + legend[0] + " " * center_gap)
