@@ -125,13 +125,13 @@ def build_row(row: pd.Series, subtasks: list[str]) -> str:
 
 df = pd.DataFrame(
     {
-        'project': ['Project A', 'Project B', 'Project C', 'Project D', 'Project E'],
-        'step1': ['4/10/2025', '3/5/2025', '5/1/2025', '7/20/2025', '10/15/2025'],
-        'step2': ['8/17/2025', '3/12/2025', '5/8/2025', '7/28/2025', '10/22/2025'],
-        'step3': ['10/25/2025', '3/20/2025', '5/17/2025', '8/4/2025', '10/30/2025'],
-        'step4': ['12/30/2025', '3/28/2025', '5/24/2025', '8/10/2025', '11/7/2025'],
-        'step5': ['2/4/2026', '4/5/2025', '6/1/2025', '8/18/2025', '11/15/2025'],
-        'end': ['2/10/2026', '4/12/2025', '6/8/2025', '8/25/2025', '11/23/2025']
+        'project': ['Project A', 'Project B', 'Project C', 'Project D'],
+        'step1': ['4/10/2025', '3/5/2025', '5/1/2025', '7/20/2025'],
+        'Very Long Step 2': ['8/17/2025', '3/12/2025', '5/8/2025', '7/28/2025'],
+        'Very Very Long Step 3': ['10/25/2025', '3/20/2025', '5/17/2025', '8/4/2025'],
+        'Very Very Very Long Step 4': ['12/30/2025', '3/28/2025', '5/24/2025', '8/10/2025'],
+        'Very Very Very Long Step 5': ['2/4/2026', '4/5/2025', '6/1/2025', '8/18/2025'],
+        'end': ['2/10/2026', '4/12/2025', '6/8/2025', '8/25/2025']
     }
 )
 
@@ -150,7 +150,7 @@ subtask_color = {
 start_date = df.iloc[:, 1].min()
 end_date = df['end'].max()
 
-width = np.round(get_terminal_width() * 1.8).astype(int)
+width = np.round(get_terminal_width() * 2).astype(int)
 date_to_index = map_dates_to_timeline(start_date=start_date, end_date=end_date, width=width)
 
 tick_dates = get_tick_dates(date_to_index=date_to_index, show_15=False)
@@ -168,7 +168,7 @@ tick_row = get_timeline(
 for idx, row in df.iterrows():
     bar = build_row(row, subtasks=subtasks)
     print(f"{row['project']:<15}{arrow}{bar}")
-    if idx < (len(subtasks) - 1):
+    if idx < (len(df) - 1):
         print(tick_row)
 
 timeline = get_timeline(
@@ -177,21 +177,29 @@ timeline = get_timeline(
     )
 print(timeline)
 print()
+print()
 
+total_width = len(timeline.split("\n")[0])
 legends = []
 length = 0
 s = ""
 for subtask in subtasks:
+    step_legth = len(subtask) + 7
+    if (length + step_legth - 7) > total_width and len(s) > 0:
+        legends.append((s[:-2], length - 3))
+        length = 0
+        s = ""
     s += subtask_color[subtask] * 3 + " " + subtask + "\033[0m" + "   "
     length += len(subtask) + 7
-    if length > width:
-        length = 0
-        legends.append((s[:-2], length - 3))
-        s = ""
 
 if len(s) > 0:
     legends.append((s[:-2], length - 3))
 
 for legend in legends:
-    center_gap = (width - legend[-1]) // 2
+    if legend[1] < total_width:
+        center_gap = (total_width - legend[1]) // 2
+    else:
+        center_gap = 0
+    center_gap = (total_width - legend[1]) // 2
     print(" " * center_gap + legend[0] + " " * center_gap)
+    print()
